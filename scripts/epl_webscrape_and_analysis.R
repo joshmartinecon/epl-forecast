@@ -107,18 +107,11 @@ if (nrow(todo) > 0) {
   message("no new matches")
   df <- x
 }
-df <- bind_rows(z)
-
-##### merge and save #####
-df <- rbind(x, df)
-write.csv(df, "data/match_data.csv", row.names = FALSE)
 
 ##### Predicted Goals & Massey Ratings #####
 lm1 <- lm(I(home_goals - away_goals) ~ I(home_xg - away_xg) + I((home_xt - away_xt)/100), data = df)
 df$predicted_goals <- predict(lm1, newdata = df)
 df$goals <- df$home_goals - df$away_goals
-plot(df$predicted_goals, df$goals)
-cor(df$predicted_goals, df$goals)
 
 # yay linear algebra
 m <- df[!is.na(df$home_xg), ]
