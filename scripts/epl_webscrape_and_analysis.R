@@ -7,6 +7,8 @@ library(png)
 library(MASS)
 library(dplyr)
 
+# the sign on expected threat is opposite of theory -> omited for now
+
 ## clear data environment if wanted
 # rm(list = ls())
 
@@ -85,7 +87,9 @@ get_match <- function(url) {
     home_xg    = xg[1],
     away_xg    = xg[2],
     home_xt    = if (length(mom)) sum(mom[mom > 0]) else NA_real_,
-    away_xt    = if (length(mom)) -sum(mom[mom < 0]) else NA_real_
+    away_xt    = if (length(mom)) -sum(mom[mom < 0]) else NA_real_,
+    home_rtg   = pp$content$lineup$homeTeam$rating,
+    away_rtg   = pp$content$lineup$awayTeam$rating
   )
 }
 
@@ -95,7 +99,11 @@ get_match <- function(url) {
 fx <- get_fixtures(0)
 
 ### When was the code last updated?
-x <- read.csv("data/match_data.csv")
+x <- if (file.exists("data/match_data.csv")) {
+  read.csv("data/match_data.csv", stringsAsFactors = FALSE, colClasses = c(match_id = "character"))
+} else {
+  data.frame()
+}
 todo <- fx[fx$finished & !(fx$match_id %in% x$match_id), ]
 
 ### gather new matches
@@ -109,7 +117,8 @@ if (nrow(todo) > 0) {
 }
 
 ##### Predicted Goals & Massey Ratings #####
-lm1 <- lm(I(home_goals - away_goals) ~ I(home_xg - away_xg) + I((home_xt - away_xt)/100), data = df)
+# lm1 <- lm(I(home_goals - away_goals) ~ I(home_xg - away_xg) + I((home_xt - away_xt)/100) + I(home_rtg - away_rtg), data = df)
+lm1 <- lm(I(home_goals - away_goals) ~ I(home_xg - away_xg) + I(home_rtg - away_rtg), data = df)
 df$predicted_goals <- predict(lm1, newdata = df)
 df$goals <- df$home_goals - df$away_goals
 
@@ -131,12 +140,15 @@ rate <- function(y) {
 r_goals <- rate(m$home_goals - m$away_goals)
 r_xg    <- rate(m$home_xg    - m$away_xg)
 r_xt    <- rate((m$home_xt   - m$away_xt) / 100)
+r_rtg   <- rate(m$home_rtg   - m$away_rtg)
 tm <- data.frame(team = names(r_goals$rating), r_goals = as.numeric(r_goals$rating))
 tm$r_xg <- as.numeric(r_xg$rating[tm$team])
 tm$r_xt <- as.numeric(r_xt$rating[tm$team])
+tm$r_rtg <- as.numeric(r_rtg$rating[tm$team])
 
 ## expected goals
-fit <- lm(r_goals ~ r_xg + r_xt, data = tm)
+# fit <- lm(r_goals ~ r_xg + r_xt + r_rtg, data = tm)
+fit <- lm(r_goals ~ r_xg + r_rtg, data = tm)
 tm$exp_goals <- fitted(fit)
 tm$luck      <- resid(fit)
 
@@ -215,7 +227,9 @@ boot_ratings <- function(m, B = 1000, lambda = 3) {
     rg <- fit_r(D, mb$home_goals - mb$away_goals)
     rx <- fit_r(D, mb$home_xg    - mb$away_xg)
     rt <- fit_r(D, (mb$home_xt   - mb$away_xt) / 100)
-    out[b, ] <- fitted(lm(rg ~ rx + rt))
+    rr <- fit_r(D, mb$home_rtg - mb$away_rtg)
+    # out[b, ] <- fitted(lm(rg ~ rx + rt + rr))
+    out[b, ] <- fitted(lm(rg ~ rx + rr))
   }
   out
 }
@@ -289,7 +303,7 @@ rownames(out) <- NULL
 out <- out[order(out$exp_rank),]
 out <- cbind(out, x[match(out$team, x$team), c(2:4)])
 names(out)[8:9] <- c("massey_rtg", "exp_rtg")
-out <- out[order(-out$exp_pts),]
+out <- out[order(-out$exp_pts, out$exp_rank, -out$p_title),]
 out$exp_pts <- round(out$exp_pts)
 out$exp_rank <- round(out$exp_rank, 1)
 for(i in 5:7){
