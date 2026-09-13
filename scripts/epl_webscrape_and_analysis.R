@@ -7,8 +7,6 @@ library(png)
 library(MASS)
 library(dplyr)
 
-# the sign on expected threat is opposite of theory -> omited for now
-
 ## clear data environment if wanted
 # rm(list = ls())
 
@@ -138,8 +136,8 @@ if (nrow(todo) > 0) {
 }
 
 ##### Predicted Goals & Massey Ratings #####
-# lm1 <- lm(I(home_goals - away_goals) ~ I(home_xg - away_xg) + I((home_xt - away_xt)/100) + I(home_rtg - away_rtg), data = df)
-lm1 <- lm(I(home_goals - away_goals) ~ I(home_xg - away_xg) + I(home_rtg - away_rtg), data = df)
+lm1 <- lm(I(home_goals - away_goals) ~ I(home_xg - away_xg) + I((home_xt - away_xt)/100) + I(home_rtg - away_rtg), data = df)
+# lm1 <- lm(I(home_goals - away_goals) ~ I(home_xg - away_xg) + I(home_rtg - away_rtg), data = df)
 df$predicted_goals <- predict(lm1, newdata = df)
 df$goals <- df$home_goals - df$away_goals
 
@@ -149,12 +147,12 @@ teams <- sort(unique(c(m$home, m$away)))
 X <- matrix(0, nrow(m), length(teams), dimnames = list(NULL, teams))
 X[cbind(seq_len(nrow(m)), match(m$home, teams))] <-  1
 X[cbind(seq_len(nrow(m)), match(m$away, teams))] <- -1
-rate <- function(y) {
-  D <- cbind(hfa = 1, X[, -ncol(X), drop = FALSE])
-  fit <- lm(y ~ 0 + D)
-  b <- coef(fit)
-  r <- c(b[-1], 0); names(r) <- teams
-  list(hfa = unname(b[1]), rating = r - mean(r), fit = fit, V = vcov(fit))
+rate <- function(y, lambda = 3) {
+  D <- cbind(hfa = 1, X)
+  P <- diag(c(0, rep(lambda, length(teams))))
+  b <- solve(crossprod(D) + P, crossprod(D, y))
+  r <- as.vector(b)[-1]; names(r) <- teams
+  list(hfa = as.vector(b)[1], rating = r - mean(r))
 }
 
 ## massey ratings
@@ -169,7 +167,7 @@ tm$r_rtg <- as.numeric(r_rtg$rating[tm$team])
 
 ## expected goals
 # fit <- lm(r_goals ~ r_xg + r_xt + r_rtg, data = tm)
-fit <- lm(r_goals ~ r_xg + r_rtg, data = tm)
+# fit <- lm(r_goals ~ r_xg + r_rtg, data = tm)
 tm$exp_goals <- fitted(fit)
 tm$luck      <- resid(fit)
 
@@ -255,9 +253,32 @@ boot_ratings <- function(m, B = 1000, lambda = 3) {
   out
 }
 bs <- boot_ratings(m)
-x$se <- apply(bs, 2, sd)[x$team]
-x$lb <- apply(bs, 2, quantile, 0.025)[x$team]
-x$ub <- apply(bs, 2, quantile, 0.975)[x$team]
+
+## out-of-sample predict values, for calibrating the ordered logit only
+loo_predict <- function(m, lambda = 3) {
+  D0 <- cbind(hfa = 1, X)
+  P  <- diag(c(0, rep(lambda, length(teams))))
+  vapply(seq_len(nrow(m)), function(i) {
+    Di <- D0[-i, , drop = FALSE]
+    A  <- solve(crossprod(Di) + P)
+    f  <- function(yv) {
+      b <- A %*% crossprod(Di, yv)
+      r <- as.vector(b)[-1]; names(r) <- teams
+      r - mean(r)
+    }
+    rg <- f((m$home_goals - m$away_goals)[-i])
+    rx <- f((m$home_xg    - m$away_xg)[-i])
+    rt <- f(((m$home_xt   - m$away_xt) / 100)[-i])
+    rr <- f((m$home_rtg   - m$away_rtg)[-i])
+    eg <- fitted(lm(rg ~ rx + rt + rr)); names(eg) <- teams
+    unname(eg[m$home[i]] - eg[m$away[i]])
+  }, numeric(1))
+}
+m$predict_loo <- loo_predict(m)
+
+# x$se <- apply(bs, 2, sd)[x$team]
+# x$lb <- apply(bs, 2, quantile, 0.025)[x$team]
+# x$ub <- apply(bs, 2, quantile, 0.975)[x$team]
 
 ##### forecast prep #####
 ## make names consistent
@@ -282,7 +303,10 @@ y$outcome <- factor(ifelse(y$goals > 0, "win", ifelse(y$goals == 0, "draw", "los
 future <- y[is.na(y$goals), ]
 
 # estimate probability of winning | on rating
-m      <- polr(outcome ~ predict, data = y[!is.na(y$goals), ], Hess = TRUE)
+train <- y[!is.na(y$goals), ]
+train$predict <- m$predict_loo[match(train$match_id, m$match_id)]
+train <- train[!is.na(train$predict), ]
+mod <- polr(outcome ~ predict, data = train, Hess = TRUE)
 
 ## points already banked
 pl  <- y[!is.na(y$goals), ]
@@ -299,7 +323,7 @@ pts <- matrix(NA_real_,    B, nrow(x), dimnames = list(NULL, x$team))
 set.seed(1)
 for (i in seq_len(B)) {
   r <- bs[sample(nrow(bs), 1), ]
-  p <- predict(m, newdata = data.frame(
+  p <- predict(mod, newdata = data.frame(
     predict = r[future$home] - r[future$away]), type = "probs")
   o  <- apply(p, 1, function(pr) sample.int(3, 1, prob = pr))
   add <- tapply(c(c(0,1,3)[o], c(3,1,0)[o]),
@@ -333,7 +357,7 @@ for(i in 5:7){
 # out
 
 nxt <- future
-nxt <- cbind(nxt[,2:4], round(100 * predict(m, newdata = nxt, type = "probs")))
+nxt <- cbind(nxt[,2:4], round(100 * predict(mod, newdata = nxt, type = "probs")))
 nxt <- nxt[,c(1:3, 6, 5, 4)]
 nxt <- nxt[nxt$date == min(nxt$date),]
 # nxt
