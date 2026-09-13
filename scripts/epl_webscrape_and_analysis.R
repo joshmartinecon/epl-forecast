@@ -12,7 +12,7 @@ library(dplyr)
 ## clear data environment if wanted
 # rm(list = ls())
 
-##### Get fixture urls and then match data #####
+##### Get fixture urls, player ratings and match data #####
 get_fixtures <- function(page = 0) {
   pp <- paste0("https://www.fotmob.com/leagues/47/fixtures/premier-league?group=by-date&page=", page) |>
     read_html() |>
@@ -58,6 +58,24 @@ get_fixtures <- function(page = 0) {
     dplyr::arrange(date)
 }
 
+team_rating <- function(pp, team_id) {
+  ps <- pp$content$playerStats
+  if (is.null(ps) || !length(ps)) return(NA_real_)
+  
+  vals <- lapply(ps, function(p) {
+    if (!identical(p$teamId, team_id) || !length(p$stats)) return(NULL)
+    s   <- p$stats[[1]]$stats
+    rat <- s[["FotMob rating"]]$stat$value
+    min <- s[["Minutes played"]]$stat$value
+    if (is.null(rat) || is.null(min)) return(NULL)      # unrated cameo: dropped
+    c(rating = as.numeric(rat), minutes = as.numeric(min))
+  })
+  vals <- do.call(rbind, vals)
+  if (is.null(vals) || nrow(vals) == 0) return(NA_real_)
+  
+  sum(vals[, "rating"] * vals[, "minutes"]) / sum(vals[, "minutes"])
+}
+
 get_match <- function(url) {
   pp <- read_html(url) |>
     html_element("script#__NEXT_DATA__") |>
@@ -88,19 +106,22 @@ get_match <- function(url) {
     away_xg    = xg[2],
     home_xt    = if (length(mom)) sum(mom[mom > 0]) else NA_real_,
     away_xt    = if (length(mom)) -sum(mom[mom < 0]) else NA_real_,
-    home_rtg   = pp$content$lineup$homeTeam$rating,
-    away_rtg   = pp$content$lineup$awayTeam$rating
+    # home_rtg   = pp$content$lineup$homeTeam$rating,
+    # away_rtg   = pp$content$lineup$awayTeam$rating,
+    home_rtg  = team_rating(pp, pp$general$homeTeam$id),
+    away_rtg  = team_rating(pp, pp$general$awayTeam$id)
   )
 }
 
 ##### Webscrape #####
-
 ### get fixtures
 fx <- get_fixtures(0)
 
 ### When was the code last updated?
 x <- if (file.exists("data/match_data.csv")) {
-  read.csv("data/match_data.csv", stringsAsFactors = FALSE, colClasses = c(match_id = "character"))
+  read.csv("data/match_data.csv", stringsAsFactors = FALSE,
+           colClasses = c(match_id = "character")) |>
+    transform(date = as.Date(date))
 } else {
   data.frame()
 }
@@ -311,9 +332,10 @@ for(i in 5:7){
 }
 # out
 
-nxt <- future[future$date == min(future$date),]
+nxt <- future
 nxt <- cbind(nxt[,2:4], round(100 * predict(m, newdata = nxt, type = "probs")))
 nxt <- nxt[,c(1:3, 6, 5, 4)]
+nxt <- nxt[nxt$date == min(nxt$date),]
 # nxt
 
 ##### save #####
