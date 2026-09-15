@@ -6,6 +6,7 @@ library(purrr)
 library(png)
 library(MASS)
 library(dplyr)
+library(stringi)
 
 ## clear data environment if wanted
 # rm(list = ls())
@@ -114,6 +115,8 @@ get_match <- function(url) {
 ##### Webscrape #####
 ### get fixtures
 fx <- get_fixtures(0)
+fx$home <- stri_trans_general(fx$home, "Latin-ASCII")
+fx$away <- stri_trans_general(fx$away, "Latin-ASCII")
 
 ### When was the code last updated?
 x <- if (file.exists("data/match_data.csv")) {
@@ -137,7 +140,6 @@ if (nrow(todo) > 0) {
 
 ##### Predicted Goals & Massey Ratings #####
 lm1 <- lm(I(home_goals - away_goals) ~ I(home_xg - away_xg) + I((home_xt - away_xt)/100) + I(home_rtg - away_rtg), data = df)
-# lm1 <- lm(I(home_goals - away_goals) ~ I(home_xg - away_xg) + I(home_rtg - away_rtg), data = df)
 df$predicted_goals <- predict(lm1, newdata = df)
 df$goals <- df$home_goals - df$away_goals
 
@@ -155,7 +157,7 @@ rate <- function(y, lambda = 3) {
   list(hfa = as.vector(b)[1], rating = r - mean(r))
 }
 
-## massey ratings
+## Massey ratings
 r_goals <- rate(m$home_goals - m$away_goals)
 r_xg    <- rate(m$home_xg    - m$away_xg)
 r_xt    <- rate((m$home_xt   - m$away_xt) / 100)
@@ -166,8 +168,7 @@ tm$r_xt <- as.numeric(r_xt$rating[tm$team])
 tm$r_rtg <- as.numeric(r_rtg$rating[tm$team])
 
 ## expected goals
-# fit <- lm(r_goals ~ r_xg + r_xt + r_rtg, data = tm)
-# fit <- lm(r_goals ~ r_xg + r_rtg, data = tm)
+fit <- lm(r_goals ~ r_xg + r_xt + r_rtg, data = tm)
 tm$exp_goals <- fitted(fit)
 tm$luck      <- resid(fit)
 
