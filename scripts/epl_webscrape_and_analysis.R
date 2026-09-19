@@ -117,6 +117,8 @@ get_match <- function(url) {
 fx <- get_fixtures(0)
 fx$home <- stri_trans_general(fx$home, "Latin-ASCII")
 fx$away <- stri_trans_general(fx$away, "Latin-ASCII")
+fx$home <- gsub(" \\(W\\)", "", fx$home)
+fx$away <- gsub(" \\(W\\)", "", fx$away)
 
 ### When was the code last updated?
 x <- if (file.exists("data/match_data.csv")) {
