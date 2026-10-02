@@ -2484,79 +2484,520 @@
   },
   "files": {
     "app.R": {
-      "checksum": "f72008a5e584e5575a1bbc1497521e5b"
+      "checksum": "5ee70ee5b6df09ece2490601d9e9b4d6"
+    },
+    "data/bundesliga_match_data.csv": {
+      "checksum": "e7bf2e4058348e26f4c99298288aedd6"
+    },
+    "data/bundesliga_next_match_predictions.csv": {
+      "checksum": "63c23acff0eba795b41b588cf99ffb87"
+    },
+    "data/bundesliga_table.csv": {
+      "checksum": "2e8ed8d490bc13d1242bafa32e3a7473"
+    },
+    "data/epl_match_data.csv": {
+      "checksum": "2eb386595b9301b3f92fb8fef620391c"
+    },
+    "data/epl_next_match_predictions.csv": {
+      "checksum": "5853b930ef9d1575148bd23962cf7869"
     },
     "data/epl_table.csv": {
-      "checksum": "7255809d143373d882893f2326353f09"
+      "checksum": "2315916ea112f0d04e72ecd9403e4453"
     },
-    "data/match_data.csv": {
-      "checksum": "0ea2a8ea4450ccc046a737c3309e67e3"
+    "data/la-liga_match_data.csv": {
+      "checksum": "b8b9916a99a598dc6b5a82392083392d"
     },
-    "data/next_match_predictions.csv": {
-      "checksum": "72b6e8bb45570aa21e6a28880b025fa7"
+    "data/la-liga_next_match_predictions.csv": {
+      "checksum": "3e00751fe0c08fec7cf5657b6ad75590"
+    },
+    "data/la-liga_table.csv": {
+      "checksum": "8d3b6a3b3f36a9dd11105cb490762694"
+    },
+    "data/ligue-1_match_data.csv": {
+      "checksum": "c15b87b27f44c55f3d4224ed35d1ee00"
+    },
+    "data/ligue-1_next_match_predictions.csv": {
+      "checksum": "fbfffeeec01d8a27ad1b1ffb27ab6a87"
+    },
+    "data/ligue-1_table.csv": {
+      "checksum": "9453fe1086acb1f0ea549bcb0634afca"
+    },
+    "data/mls_match_data.csv": {
+      "checksum": "6fe9809a4a199bad8e7eed6e0eb319a5"
+    },
+    "data/mls_next_match_predictions.csv": {
+      "checksum": "a6b901e5843e8465313c08705857eb13"
+    },
+    "data/mls_table.csv": {
+      "checksum": "26a9b32b3082d0d00e284e9adc11d87b"
+    },
+    "data/nwsl_match_data.csv": {
+      "checksum": "3c6a79d0683b77e545b08ff115cd6505"
+    },
+    "data/nwsl_next_match_predictions.csv": {
+      "checksum": "d1cc822ff4786066eddc9c2b2b4c6967"
+    },
+    "data/nwsl_table.csv": {
+      "checksum": "14279b2b512e5fdfc7c142386067009a"
+    },
+    "data/serie-a_match_data.csv": {
+      "checksum": "0917e03e004b9691791e7a6c43385bd6"
+    },
+    "data/serie-a_next_match_predictions.csv": {
+      "checksum": "b357aa5a64780579daf337791ab2965d"
+    },
+    "data/serie-a_table.csv": {
+      "checksum": "6d36e7b9d0e7a43a4933ebf2a0ee120d"
+    },
+    "figures/bundesliga_stats (JoshMartin's conflicted copy 2026-09-27).png": {
+      "checksum": "5c423908f6209e23174bc23bba986661"
+    },
+    "figures/bundesliga_stats.png": {
+      "checksum": "5c423908f6209e23174bc23bba986661"
     },
     "figures/epl_stats.png": {
-      "checksum": "7deb68736d765d61f40f08f269d63148"
+      "checksum": "0aa9fac2d1b02c598509a35dd5293b07"
     },
-    "logos/afc-bournemouth-logo-footylogos.png": {
+    "figures/la-liga_stats.png": {
+      "checksum": "08603cf397d40ab9159c873646ea67e8"
+    },
+    "figures/ligue-1_stats.png": {
+      "checksum": "111eb3edf167f50315b5bc89f36d1c63"
+    },
+    "figures/mls_stats.png": {
+      "checksum": "551fda0dd9915b6c6b365dbce3bb685b"
+    },
+    "figures/nwsl_stats.png": {
+      "checksum": "a198c348445a4e212f77eb832e52584b"
+    },
+    "figures/serie-a_stats.png": {
+      "checksum": "bf91b6a280829591f70371406d20aeb4"
+    },
+    "logos/bundesliga/1-fc-koln-logo-footylogos.png": {
+      "checksum": "d3c96cd3d525766d8f906af8427eea75"
+    },
+    "logos/bundesliga/bayer-leverkusen-logo-footylogos.png": {
+      "checksum": "0e51706fea3f14e35078a0354aca40d9"
+    },
+    "logos/bundesliga/bayern-munchen-logo-footylogos.png": {
+      "checksum": "f688e7ded646d8746125d3739af355a1"
+    },
+    "logos/bundesliga/borussia-dortmund-logo-footylogos.png": {
+      "checksum": "5ee697950a8d35ca2addf30b2f064977"
+    },
+    "logos/bundesliga/borussia-monchengladbach-logo-footylogos.png": {
+      "checksum": "2bab60dadfe97b7ae214923b2cb189e4"
+    },
+    "logos/bundesliga/eintracht-frankfurt-logo-footylogos.png": {
+      "checksum": "fcd5311c207319a79ce19af697708e21"
+    },
+    "logos/bundesliga/fc-augsburg-logo-footylogos.png": {
+      "checksum": "436aefa321a75c2070355a0225c9bc3a"
+    },
+    "logos/bundesliga/hamburger-sv-logo-footylogos.png": {
+      "checksum": "09f1d90297c860ee06c9626e14d7816b"
+    },
+    "logos/bundesliga/mainz-05-logo-footylogos.png": {
+      "checksum": "f6a95d8a05a79141e3afcfcf2fb77290"
+    },
+    "logos/bundesliga/rb-leipzig-logo-footylogos.png": {
+      "checksum": "e86a5f9c6a0e503b4a234b0e89467115"
+    },
+    "logos/bundesliga/sc-freiburg-logo-footylogos.png": {
+      "checksum": "b4e152b941007070b9e129415f4fa53e"
+    },
+    "logos/bundesliga/sc-paderborn-07-logo-footylogos.png": {
+      "checksum": "66b34b8ffbfdfc3db79e7fcf954c4cba"
+    },
+    "logos/bundesliga/schalke-04-logo-footylogos.png": {
+      "checksum": "e9c191c8fdd301e949addd9f27170c7a"
+    },
+    "logos/bundesliga/sv-elversberg-logo-footylogos.png": {
+      "checksum": "291cf4186020dcbc945d76122b126364"
+    },
+    "logos/bundesliga/tsg-hoffenheim-logo-footylogos.png": {
+      "checksum": "3b7079573c8f21828a4cd72f6d281952"
+    },
+    "logos/bundesliga/union-berlin-logo-footylogos.png": {
+      "checksum": "9c40cd9aa5ebe56540d2595cb04e3af9"
+    },
+    "logos/bundesliga/vfb-stuttgart-logo-footylogos.png": {
+      "checksum": "e75d4709e5fd6a5aa987410ce86f2f15"
+    },
+    "logos/bundesliga/werder-bremen-logo-footylogos.png": {
+      "checksum": "dcabe18bee17822486acc3dd63a88030"
+    },
+    "logos/epl/afc-bournemouth-logo-footylogos.png": {
       "checksum": "93e3b917cbf9cdbb862e2eb3b6793f58"
     },
-    "logos/arsenal-logo-footylogos.png": {
+    "logos/epl/arsenal-logo-footylogos.png": {
       "checksum": "907f8cd70240eae54ceb0cfba8867f7d"
     },
-    "logos/aston-villa-logo-footylogos.png": {
+    "logos/epl/aston-villa-logo-footylogos.png": {
       "checksum": "d0a9f64c1e45ef08528aa464ceb386d9"
     },
-    "logos/brentford-logo-footylogos.png": {
+    "logos/epl/brentford-logo-footylogos.png": {
       "checksum": "c310582422faf35310af479f6649739e"
     },
-    "logos/brighton-and-hove-albion-logo-footylogos.png": {
+    "logos/epl/brighton-and-hove-albion-logo-footylogos.png": {
       "checksum": "5b0cfad2bec09a59e022e5634f5385c8"
     },
-    "logos/chelsea-logo-footylogos.png": {
+    "logos/epl/chelsea-logo-footylogos.png": {
       "checksum": "70b1ca537b6a0cc27a4131772e8e61ee"
     },
-    "logos/coventry-city-logo-footylogos.png": {
+    "logos/epl/coventry-city-logo-footylogos.png": {
       "checksum": "04248d8b779f349d0a240b51683c221f"
     },
-    "logos/crystal-palace-logo-footylogos.png": {
+    "logos/epl/crystal-palace-logo-footylogos.png": {
       "checksum": "3e14e81eab404ea832749dd89cedd31f"
     },
-    "logos/everton-logo-footylogos.png": {
+    "logos/epl/everton-logo-footylogos.png": {
       "checksum": "f5b7a143e7bf980a2dbddf6254aa8862"
     },
-    "logos/fulham-logo-footylogos.png": {
+    "logos/epl/fulham-logo-footylogos.png": {
       "checksum": "c72d7e86214ca39d3d7bfe93d42b1d9a"
     },
-    "logos/hull-city-logo-footylogos.png": {
+    "logos/epl/hull-city-logo-footylogos.png": {
       "checksum": "ba9bc285dc6d078d6f57e278de8d36ba"
     },
-    "logos/ipswich-town-logo-footylogos.png": {
+    "logos/epl/ipswich-town-logo-footylogos.png": {
       "checksum": "98ae74fd460e4df2caebab879784933b"
     },
-    "logos/leeds-united-logo-footylogos.png": {
+    "logos/epl/leeds-united-logo-footylogos.png": {
       "checksum": "60691ec48e5fe11dc26cad7761bb8dee"
     },
-    "logos/liverpool-fc-logo-footylogos.png": {
+    "logos/epl/liverpool-fc-logo-footylogos.png": {
       "checksum": "31e47fd836d7cf042590ad6b94b8bae2"
     },
-    "logos/manchester-city-logo-footylogos.png": {
+    "logos/epl/manchester-city-logo-footylogos.png": {
       "checksum": "61cb8581bca166016c5825b7826903c5"
     },
-    "logos/manchester-united-logo-footylogos.png": {
+    "logos/epl/manchester-united-logo-footylogos.png": {
       "checksum": "66d10afcc8bb3128866071f791434526"
     },
-    "logos/newcastle-united-logo-footylogos.png": {
+    "logos/epl/newcastle-united-logo-footylogos.png": {
       "checksum": "23dffcbba4ef80c6593ed82b632724be"
     },
-    "logos/nottingham-forest-logo-footylogos.png": {
+    "logos/epl/nottingham-forest-logo-footylogos.png": {
       "checksum": "3f22bce3f34547c5108da29a36f94013"
     },
-    "logos/sunderland-logo-footylogos.png": {
+    "logos/epl/sunderland-logo-footylogos.png": {
       "checksum": "4bf641f8d78462da6ef7d24fe6e6dc2b"
     },
-    "logos/tottenham-hotspur-logo-footylogos.png": {
+    "logos/epl/tottenham-hotspur-logo-footylogos.png": {
       "checksum": "c03e4e8a725494443041f56b61ac776b"
+    },
+    "logos/la-liga/athletic-club-bilbao-logo-footylogos.png": {
+      "checksum": "3ad65b934bc115ed45db4b91c0fc367d"
+    },
+    "logos/la-liga/atletico-madrid-logo-footylogos.png": {
+      "checksum": "2c5f4695162a56e91d0ec14b6c5a7be8"
+    },
+    "logos/la-liga/celta-vigo-logo-footylogos.png": {
+      "checksum": "06cf50409a1dc61b78384766f6866c82"
+    },
+    "logos/la-liga/deportivo-a-coruna-logo-footylogos.png": {
+      "checksum": "e25301b0994af2636a215e8f2c6c215a"
+    },
+    "logos/la-liga/deportivo-alaves-logo-footylogos.png": {
+      "checksum": "21e0bda147b95738aabd7f28e543faa7"
+    },
+    "logos/la-liga/elche-cf-logo-footylogos.png": {
+      "checksum": "07073e2ba1ee51d78263300b064ffc40"
+    },
+    "logos/la-liga/fc-barcelona-logo-footylogos.png": {
+      "checksum": "7716c2c59d8edf3f89ef3caf23de83f0"
+    },
+    "logos/la-liga/getafe-cf-logo-footylogos.png": {
+      "checksum": "a2fc213994fc6e0d2b3eab712e3194a3"
+    },
+    "logos/la-liga/levante-ud-logo-footylogos.png": {
+      "checksum": "44d125c3cc8492cb83f9640c8c32f84b"
+    },
+    "logos/la-liga/malaga-cf-logo-footylogos.png": {
+      "checksum": "8ad60fd9f172b33a2b15de451241518d"
+    },
+    "logos/la-liga/osasuna-logo-footylogos.png": {
+      "checksum": "25ff34773e490e5413f1bf37f601f1d8"
+    },
+    "logos/la-liga/racing-santander-logo-footylogos.png": {
+      "checksum": "08e50d5b9c796ec207f0a000e72092de"
+    },
+    "logos/la-liga/rayo-vallecano-logo-footylogos.png": {
+      "checksum": "873204b1156b9b94d05504f1e2fd5315"
+    },
+    "logos/la-liga/rcd-espanyol-barcelona-logo-footylogos.png": {
+      "checksum": "3f9689535e619794acdccaf3d791f3c4"
+    },
+    "logos/la-liga/real-betis-balompie-logo-footylogos.png": {
+      "checksum": "096bbb8357df4b82da4a56cc96a4c695"
+    },
+    "logos/la-liga/real-madrid-logo-footylogos.png": {
+      "checksum": "155ff8ac600f28c9e48d8c26b92d695f"
+    },
+    "logos/la-liga/real-sociedad-logo-footylogos.png": {
+      "checksum": "966a9307f2db0bb9e4d04d7cbeb91afb"
+    },
+    "logos/la-liga/sevilla-fc-logo-footylogos.png": {
+      "checksum": "1bed9171cc0aa5a4b0d82883ee1531d4"
+    },
+    "logos/la-liga/valencia-cf-logo-footylogos.png": {
+      "checksum": "0cc9c9f75cf5aa2a211cbdfcbbffb12a"
+    },
+    "logos/la-liga/villarreal-cf-logo-footylogos.png": {
+      "checksum": "6300e930d501db28082fec70ea3a09b2"
+    },
+    "logos/ligue-1/aj-auxerre-logo-footylogos.png": {
+      "checksum": "19b020f8df307c4e174fa395317d135c"
+    },
+    "logos/ligue-1/angers-sco-logo-footylogos.png": {
+      "checksum": "1e214b91978130e2828cce40b45a9979"
+    },
+    "logos/ligue-1/as-monaco-logo-footylogos.png": {
+      "checksum": "c63889cca1a83a8d9d029ef6a1377d80"
+    },
+    "logos/ligue-1/fc-lorient-logo-footylogos.png": {
+      "checksum": "da17d660b9aaf6f46fa7263b127aa221"
+    },
+    "logos/ligue-1/le-havre-ac-logo-footylogos.png": {
+      "checksum": "12b0f5332a02841280662ca8716e797b"
+    },
+    "logos/ligue-1/le-mans-fc-logo-footylogos.png": {
+      "checksum": "eb0fb4071b197f78e6268c0046e64a13"
+    },
+    "logos/ligue-1/losc-lille-logo-footylogos.png": {
+      "checksum": "0138e49b2f616186e5481312b2f50abd"
+    },
+    "logos/ligue-1/ogc-nice-logo-footylogos.png": {
+      "checksum": "2295160cde8786ccd6e0ac65f1d0a4c1"
+    },
+    "logos/ligue-1/olympique-de-marseille-om-logo-footylogos.png": {
+      "checksum": "4e5104e413976a21c2ac592b4a040ab6"
+    },
+    "logos/ligue-1/olympique-lyonnais-logo-footylogos.png": {
+      "checksum": "88b65002b9aedc1fc6aca63d39cbcc86"
+    },
+    "logos/ligue-1/paris-fc-logo-footylogos.png": {
+      "checksum": "700ed1b8cf23708cb2a83b8952b80eeb"
+    },
+    "logos/ligue-1/paris-saint-germain-psg-logo-footylogos.png": {
+      "checksum": "029f119f8b0474341b45a94a1fc1684d"
+    },
+    "logos/ligue-1/rc-lens-logo-footylogos.png": {
+      "checksum": "28c2076fa949afc28cabe6e280903869"
+    },
+    "logos/ligue-1/rc-strasbourg-alsace-logo-footylogos.png": {
+      "checksum": "31e84507816cc5b2d0f1e1162a545864"
+    },
+    "logos/ligue-1/rennes-logo-footylogos.png": {
+      "checksum": "4e291c0bab3489aafb558a5e001c01a9"
+    },
+    "logos/ligue-1/stade-brestois-29-logo-footylogos.png": {
+      "checksum": "bf18f6e0082474ccbcd4e84b301fc2f0"
+    },
+    "logos/ligue-1/toulouse-fc-logo-footylogos.png": {
+      "checksum": "eac3745a44aee2653691091abf425eb7"
+    },
+    "logos/ligue-1/troyes-logo-footylogos.png": {
+      "checksum": "85b7d8f32b80c657932f93f9cc852b45"
+    },
+    "logos/mls/atlanta-united-logo-footylogos.png": {
+      "checksum": "bd0771b6df8ae1582e5d4bdd473b17d1"
+    },
+    "logos/mls/austin-fc-logo-footylogos.png": {
+      "checksum": "3a9e45fa58fa414fbb93aacd3023a1ba"
+    },
+    "logos/mls/cf-montreal-logo-footylogos.png": {
+      "checksum": "66b3eac519f9cdac6607641051c354f7"
+    },
+    "logos/mls/charlotte-fc-logo-footylogos.png": {
+      "checksum": "093d67b2de99c6c071fb05524f27170a"
+    },
+    "logos/mls/chicago-fire-logo-footylogos.png": {
+      "checksum": "86555e69819a65613a74a4ee0ebb7de4"
+    },
+    "logos/mls/colorado-rapids-logo-footylogos.png": {
+      "checksum": "3a0bbbbfd175303df21bb13c0d820322"
+    },
+    "logos/mls/columbus-crew-logo-footylogos.png": {
+      "checksum": "5615447cc9b756b2ce070838e33183cf"
+    },
+    "logos/mls/dc-united-logo-footylogos.png": {
+      "checksum": "812e5239d702cb1f857c7467413d2f95"
+    },
+    "logos/mls/fc-cincinnati-logo-footylogos.png": {
+      "checksum": "018d5b124f9d0dd3e40cc836c9f54311"
+    },
+    "logos/mls/fc-dallas-logo-footylogos.png": {
+      "checksum": "a274bcb80bb4e9eb7c88108aa5a61611"
+    },
+    "logos/mls/houston-dynamo-logo-footylogos.png": {
+      "checksum": "298043afb7cf7d32c8a5d1b85ebf7b04"
+    },
+    "logos/mls/inter-miami-logo-footylogos.png": {
+      "checksum": "bf56c0142463b11475c552bf963fda0d"
+    },
+    "logos/mls/la-galaxy-logo-footylogos.png": {
+      "checksum": "5c70b83134b832f6f6522f52f5010f99"
+    },
+    "logos/mls/los-angeles-fc-logo-footylogos.png": {
+      "checksum": "6eee884941d69c13ce890522bdb54596"
+    },
+    "logos/mls/minnesota-united-logo-footylogos.png": {
+      "checksum": "e106e0ed0bfea18eb91634c828244097"
+    },
+    "logos/mls/nashville-sc-logo-footylogos.png": {
+      "checksum": "e0349ff9482e853ad1546b15b7951f3d"
+    },
+    "logos/mls/new-england-revolution-logo-footylogos.png": {
+      "checksum": "68d8797a79836870921713524926798c"
+    },
+    "logos/mls/new-york-city-fc-logo-footylogos.png": {
+      "checksum": "7a43a9ecb53d9525ae1932ce7e029233"
+    },
+    "logos/mls/orlando-city-logo-footylogos.png": {
+      "checksum": "3d8b890bfb200daf359285f8dccabf57"
+    },
+    "logos/mls/philadelphia-union-logo-footylogos.png": {
+      "checksum": "73b03d27b32fe44f3b8420e02be1ebf3"
+    },
+    "logos/mls/portland-timbers-logo-footylogos.png": {
+      "checksum": "e0974327c9e5cc638be7dda3e8baee1b"
+    },
+    "logos/mls/real-salt-lake-logo-footylogos.png": {
+      "checksum": "ccda4a9357caf9b102109fbfca96c2e9"
+    },
+    "logos/mls/red-bull-new-york-logo-footylogos.png": {
+      "checksum": "41408b429df61aac9df90938757411fc"
+    },
+    "logos/mls/san-diego-fc-logo-footylogos.png": {
+      "checksum": "4144d81e9993b41e0e330eb06862aca8"
+    },
+    "logos/mls/san-jose-earthquakes-logo-footylogos.png": {
+      "checksum": "865a713531c2a7f27a37b74c346656ac"
+    },
+    "logos/mls/seattle-sounders-logo-footylogos.png": {
+      "checksum": "2e13bd6d469cdc1e11c2bcf260595cb5"
+    },
+    "logos/mls/sporting-kansas-city-logo-footylogos.png": {
+      "checksum": "95c167c7832a0e7e91c493e4d00eed36"
+    },
+    "logos/mls/st-louis-city-sc-logo-footylogos.png": {
+      "checksum": "cfb93a60143828a41fe86ad5e8320a10"
+    },
+    "logos/mls/toronto-fc-logo-footylogos.png": {
+      "checksum": "84dabf99ce8a8f1d38ed4de527a7212c"
+    },
+    "logos/mls/vancouver-whitecaps-logo-footylogos.png": {
+      "checksum": "e297174d3de1b1e0338bf48aa3ecd7c2"
+    },
+    "logos/nwsl/angel-city-fc-logo-footylogos.png": {
+      "checksum": "820255ee412e6199b24db1fe0d0bac10"
+    },
+    "logos/nwsl/bay-fc-logo-footylogos.png": {
+      "checksum": "c408e23cf2d1438a970bd181bb559949"
+    },
+    "logos/nwsl/boston-legacy-fc-logo-footylogos.png": {
+      "checksum": "ab980e28f1e10c12fdbfbb5a32e771db"
+    },
+    "logos/nwsl/chicago-stars-fc-logo-footylogos.png": {
+      "checksum": "7fef29f2d8e2277317ec5b9b665cb22e"
+    },
+    "logos/nwsl/denver-summit-fc-logo-footylogos.png": {
+      "checksum": "64baa4d9aa2f29ed4a9fe1b662957255"
+    },
+    "logos/nwsl/gotham-fc-logo-footylogos.png": {
+      "checksum": "f4671e34f7f2db572993417befaa05b7"
+    },
+    "logos/nwsl/houston-dash-logo-footylogos.png": {
+      "checksum": "8d1fb4b31e38e951f421fb6c9db94c27"
+    },
+    "logos/nwsl/kansas-city-current-logo-footylogos.png": {
+      "checksum": "59102f761c8f7cceb5f840fb26857a9a"
+    },
+    "logos/nwsl/north-carolina-courage-logo-footylogos.png": {
+      "checksum": "f5f7db672d51b6c739746660ccf63141"
+    },
+    "logos/nwsl/orlando-pride-logo-footylogos.png": {
+      "checksum": "138822d7f1d47e3f3ed2107105993bc7"
+    },
+    "logos/nwsl/portland-thorns-fc-logo-footylogos.png": {
+      "checksum": "a736572d01ee16778779f64c64ab5eae"
+    },
+    "logos/nwsl/racing-louisville-fc-logo-footylogos.png": {
+      "checksum": "89ad1059d48df499682841d447ab1871"
+    },
+    "logos/nwsl/san-diego-wave-fc-logo-footylogos.png": {
+      "checksum": "c5b2661292ceb056025f53f0d6b601a2"
+    },
+    "logos/nwsl/seattle-reign-fc-logo-footylogos.png": {
+      "checksum": "7d50000562847b08c6574d0b61a4befd"
+    },
+    "logos/nwsl/utah-royals-fc-logo-footylogos.png": {
+      "checksum": "eb21ea46c3dfc03fe22b7bffa8dae140"
+    },
+    "logos/nwsl/washington-spirit-logo-footylogos.png": {
+      "checksum": "c22b62d0c5d6a71d48dccdcc1169f585"
+    },
+    "logos/serie-a/ac-milan-logo-footylogos.png": {
+      "checksum": "baf8647994f9ddd399fd28f912b08ed7"
+    },
+    "logos/serie-a/ac-monza-logo-footylogos.png": {
+      "checksum": "6367bc3c208f1c32aa800aa1228bca93"
+    },
+    "logos/serie-a/atalanta-logo-footylogos.png": {
+      "checksum": "cfb0b336aa7a77b2b9c7d5ffd0bf4e4c"
+    },
+    "logos/serie-a/bologna-logo-footylogos.png": {
+      "checksum": "ad3e4d9b8cc80459c01edb185248b797"
+    },
+    "logos/serie-a/cagliari-logo-footylogos.png": {
+      "checksum": "a0f7d27a51bd8b0c61cc1b3f810ee3c2"
+    },
+    "logos/serie-a/como-1907-logo-footylogos.png": {
+      "checksum": "2458513b357cca5d088b16ccd1f53bbc"
+    },
+    "logos/serie-a/fiorentina-logo-footylogos.png": {
+      "checksum": "b384a81030938af62f610a47e05d6135"
+    },
+    "logos/serie-a/frosinone-calcio-logo-footylogos.png": {
+      "checksum": "be0b4790fb70e5032c390c1685acc64b"
+    },
+    "logos/serie-a/genoa-logo-footylogos.png": {
+      "checksum": "0ad79d04ed428d71f55ffa9de4a4d50b"
+    },
+    "logos/serie-a/inter-milan-logo-footylogos.png": {
+      "checksum": "fa1b9c0c7e0f558e691a547cf611f1e7"
+    },
+    "logos/serie-a/juventus-logo-footylogos.png": {
+      "checksum": "c6657782fb7f219cad9f5547220b1e12"
+    },
+    "logos/serie-a/lazio-logo-footylogos.png": {
+      "checksum": "7145efff20a0319179194fedf35971e1"
+    },
+    "logos/serie-a/lecce-logo-footylogos.png": {
+      "checksum": "cb3088cc5bf02371a67a2ec228183886"
+    },
+    "logos/serie-a/napoli-logo-footylogos.png": {
+      "checksum": "095fccfb7c038d3aa85aa20ec111171b"
+    },
+    "logos/serie-a/parma-logo-footylogos.png": {
+      "checksum": "da9825dde591852987203a4c8e07988e"
+    },
+    "logos/serie-a/roma-logo-footylogos.png": {
+      "checksum": "2533c6d7886a9a095d24a7ef6adf5667"
+    },
+    "logos/serie-a/sassuolo-logo-footylogos.png": {
+      "checksum": "cfc833dded225d387557f350de8b3abf"
+    },
+    "logos/serie-a/torino-logo-footylogos.png": {
+      "checksum": "705ceedffe278783da638ce05c8c4825"
+    },
+    "logos/serie-a/udinese-logo-footylogos.png": {
+      "checksum": "e4da77e1dda6a24b30e5b4c1b96f7fa6"
+    },
+    "logos/serie-a/venezia-fc-logo-footylogos.png": {
+      "checksum": "67bd77baa652a8dbffd50e7f46070760"
     },
     "readme.html": {
       "checksum": "9715676365fa20fee824c48fa8e463e7"
@@ -2564,8 +3005,8 @@
     "readme.md": {
       "checksum": "d7cde65636fe04a4ff1e3617d094ae52"
     },
-    "scripts/epl_webscrape_and_analysis.R": {
-      "checksum": "741df55399abb48d254a8862444f646c"
+    "scripts/league_webscrape_and_analysis.R": {
+      "checksum": "aee50dd1cc68705da3c7c3bb33aabbcc"
     }
   },
   "users": null
