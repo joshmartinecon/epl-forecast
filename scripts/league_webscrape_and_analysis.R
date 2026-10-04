@@ -8,12 +8,32 @@ library(MASS)
 library(dplyr)
 library(stringi)
 
+### important that my working director is set correctly
+# setwd("C:/Users/jmart/Dropbox/github/epl-forecast")
+# setwd("~/Desktop/Dropbox/github/epl-forecast")
+
 ## clear data environment if wanted
 # rm(list = ls())
 
 ##### Get fixture urls, player ratings and match data #####
-get_fixtures <- function(page = 0) {
-  pp <- paste0("https://www.fotmob.com/leagues/47/fixtures/premier-league?group=by-date&page=", page) |>
+
+leagues <- data.frame(
+  league  = c("mls", "nwsl", "epl", "la-liga", "bundesliga", "serie-a", "ligue-1"),
+  id      = c("130", "9134", "47", "87", "54", "55", "53"),
+  slug    = c("mls", "nwsl", "premier-league", "laliga", "bundesliga", "serie", "ligue-1"),
+  n_top   = c(18, 8, 4, 4, 4, 4, 4),   # "top N" line for p_top (UCL / playoff spots)
+  n_releg = c(0, 0, 3, 3, 3, 3, 3),    # 0 = no relegation; column dropped from output
+  tz = c("America/New_York", "America/New_York", "Europe/London",
+         "Europe/Madrid", "Europe/Berlin", "Europe/Rome", "Europe/Paris")
+)
+
+local_date <- function(tm, tz = "America/New_York") {
+  t <- as.POSIXct(substr(tm, 1, 19), format = "%Y-%m-%dT%H:%M:%S", tz = "UTC")
+  as.Date(format(t, tz = tz))
+}
+
+get_fixtures <- function(id, slug, page = 0) {
+  pp <- paste0("https://www.fotmob.com/leagues/", id, "/fixtures/", slug, "?group=by-date&page=", page) |>
     read_html() |>
     html_element("script#__NEXT_DATA__") |> html_text() |>
     fromJSON(simplifyVector = FALSE) |> pluck("props", "pageProps")
@@ -37,10 +57,11 @@ get_fixtures <- function(page = 0) {
       if (!is.null(tm)) {
         out[[length(out) + 1]] <<- data.frame(
           match_id = as.character(x[["id"]]),
-          date     = as.Date(substr(tm, 1, 10)),
+          date     = local_date(tm),
           home     = team_name(x[["home"]]),
           away     = team_name(x[["away"]]),
-          finished = isTRUE(x[["status"]][["finished"]])
+          finished = isTRUE(x[["status"]][["finished"]]),
+          kickoff  = substr(tm, 1, 19)
         )
       }
     }
@@ -48,12 +69,13 @@ get_fixtures <- function(page = 0) {
     invisible(NULL)
   }
   walk_tree(pp)
+  if (!length(out)) stop("no fixtures found for league ", id, " -- check the id/slug")
   
   dplyr::bind_rows(out) |>
     dplyr::distinct(match_id, .keep_all = TRUE) |>
     dplyr::filter(!is.na(home), !is.na(away)) |>
     dplyr::mutate(url = paste0("https://www.fotmob.com/match/", match_id)) |>
-    dplyr::select(match_id, date, home, away, url, finished) |>
+    dplyr::select(match_id, date, home, away, url, finished, kickoff) |>
     dplyr::arrange(date)
 }
 
@@ -98,7 +120,7 @@ get_match <- function(url) {
     match_id   = pp$general$matchId,
     home       = pp$general$homeTeam$name,
     away       = pp$general$awayTeam$name,
-    date       = as.Date(substr(pp$header$status$utcTime, 1, 10)),
+    date       = local_date(pp$header$status$utcTime),
     home_goals = pp$header$teams[[1]]$score,
     away_goals = pp$header$teams[[2]]$score,
     home_xg    = xg[1],
@@ -112,17 +134,38 @@ get_match <- function(url) {
   )
 }
 
+## clean up file names (moved up; transliterate + drop the women's-team suffix)
+slugify <- function(s) {
+  s |> stri_trans_general("Latin-ASCII") |>
+    gsub(" \\(W\\)", "", x = _) |>
+    tolower() |>
+    gsub("&", "and", x = _) |>
+    gsub("[^a-z0-9]+", "-", x = _) |>
+    gsub("^-|-$", "", x = _)
+}
+
+run_league <- function(lg, force = FALSE) {
+
+## per-league paths (epl keeps figures/epl_stats.png and data/epl_table.csv)
+f_match <- file.path("data", paste0(lg$league, "_match_data.csv"))
+f_table <- file.path("data", paste0(lg$league, "_table.csv"))
+f_next  <- file.path("data", paste0(lg$league, "_next_match_predictions.csv"))
+f_fig   <- file.path("figures", paste0(lg$league, "_stats.png"))
+logo_dir <- file.path("logos", lg$league)
+dir.create("data", showWarnings = FALSE)
+dir.create("figures", showWarnings = FALSE)
+
 ##### Webscrape #####
 ### get fixtures
-fx <- get_fixtures(0)
+fx <- get_fixtures(lg$id, lg$slug)
 fx$home <- stri_trans_general(fx$home, "Latin-ASCII")
 fx$away <- stri_trans_general(fx$away, "Latin-ASCII")
 fx$home <- gsub(" \\(W\\)", "", fx$home)
 fx$away <- gsub(" \\(W\\)", "", fx$away)
 
 ### When was the code last updated?
-x <- if (file.exists("data/match_data.csv")) {
-  read.csv("data/match_data.csv", stringsAsFactors = FALSE,
+x <- if (file.exists(f_match)) {
+  read.csv(f_match, stringsAsFactors = FALSE,
            colClasses = c(match_id = "character")) |>
     transform(date = as.Date(date))
 } else {
@@ -132,13 +175,26 @@ todo <- fx[fx$finished & !(fx$match_id %in% x$match_id), ]
 
 ### gather new matches
 if (nrow(todo) > 0) {
-  z  <- purrr::map(todo$url, purrr::possibly(~ { Sys.sleep(5); get_match(.x) }, NULL))
+  z <- purrr::map(todo$url, ~ {
+    Sys.sleep(5)
+    tryCatch(get_match(.x), error = function(e) {
+      message("failed: ", .x, " -- ", conditionMessage(e)); NULL })
+  })
   df <- dplyr::bind_rows(x, dplyr::bind_rows(z))
-  write.csv(df, "data/match_data.csv", row.names = FALSE)
+  write.csv(df, f_match, row.names = FALSE)
 } else {
   message("no new matches")
+  if (!force && file.exists(f_table) && file.exists(f_next)) {
+    message(lg$league, ": outputs up to date, skipping")
+    return(invisible(NULL))
+  }
   df <- x
 }
+
+## normalize names like the fixtures (FotMob mixes accented/unaccented spellings)
+clean_nm <- function(v) gsub(" \\(W\\)", "", stri_trans_general(v, "Latin-ASCII"))
+df$home <- clean_nm(df$home)
+df$away <- clean_nm(df$away)
 
 ##### Predicted Goals & Massey Ratings #####
 lm1 <- lm(I(home_goals - away_goals) ~ I(home_xg - away_xg) + I((home_xt - away_xt)/100) + I(home_rtg - away_rtg), data = df)
@@ -146,7 +202,8 @@ df$predicted_goals <- predict(lm1, newdata = df)
 df$goals <- df$home_goals - df$away_goals
 
 # yay linear algebra
-m <- df[!is.na(df$home_xg), ]
+vars <- c("home_xg", "away_xg", "home_xt", "away_xt", "home_rtg", "away_rtg")
+m <- df[df$match_id %in% fx$match_id & complete.cases(df[, vars]), ]   # this season; all inputs present
 teams <- sort(unique(c(m$home, m$away)))
 X <- matrix(0, nrow(m), length(teams), dimnames = list(NULL, teams))
 X[cbind(seq_len(nrow(m)), match(m$home, teams))] <-  1
@@ -159,8 +216,17 @@ rate <- function(y, lambda = 3) {
   list(hfa = as.vector(b)[1], rating = r - mean(r))
 }
 
+y_target <- function(d, type = c("wdl", "cap", "gd"), cap = 3) {
+  gd <- d$home_goals - d$away_goals
+  switch(match.arg(type),
+         wdl = sign(gd),
+         cap = pmax(pmin(gd, cap), -cap),
+         gd  = gd)
+}
+
 ## Massey ratings
-r_goals <- rate(m$home_goals - m$away_goals)
+# r_goals <- rate(m$home_goals - m$away_goals)
+r_goals <- rate(y_target(m))   
 r_xg    <- rate(m$home_xg    - m$away_xg)
 r_xt    <- rate((m$home_xt   - m$away_xt) / 100)
 r_rtg   <- rate(m$home_rtg   - m$away_rtg)
@@ -176,27 +242,21 @@ tm$luck      <- resid(fit)
 
 ##### Figure #####
 
-## clean up file names
-slugify <- function(s) {
-  s |> tolower() |>
-    gsub("&", "and", x = _) |>
-    gsub("[^a-z0-9]+", "-", x = _) |>
-    gsub("^-|-$", "", x = _)
-}
-
 ## find files
-files <- list.files("logos", pattern = "\\.png$")
+files <- list.files(logo_dir, pattern = "\\.png$")
 fslug <- sub("-logo-footylogos\\.png$", "", files)
 tm$file <- vapply(slugify(tm$team), function(s) {
   hit <- which(fslug == s)
   if (!length(hit)) hit <- grep(s, fslug, fixed = TRUE)       # liverpool -> liverpool-fc
+  if (length(hit) > 1) hit <- hit[which.min(nchar(fslug[hit]))]  # barcelona -> fc-barcelona
   if (!length(hit)) hit <- which(vapply(fslug, grepl, logical(1), x = s, fixed = TRUE))
   if (length(hit) == 1) files[hit] else NA_character_
 }, character(1))
-imgs <- lapply(tm$file, function(f) readPNG(file.path("logos", f)))
+imgs <- lapply(tm$file, function(f) if (is.na(f)) NULL else readPNG(file.path(logo_dir, f)))
+if (any(is.na(tm$file))) message("no logo for: ", paste(tm$team[is.na(tm$file)], collapse = ", "))
 
 ## create image
-png("figures/epl_stats.png", width = 2000, height = 1600, res = 300)
+png(f_fig, width = 2000, height = 1600, res = 300)
 par(mar = c(4.5, 4.5, 1, 1))
 plot(tm$exp_goals, tm$r_goals, type = "n",
      xlab = "Expected Goal Difference", 
@@ -208,6 +268,10 @@ abline(0, 1, lty = 3, lwd = 2, col = "darkgrey")
 sz  <- 0.28                                   # logo width in inches
 usr <- par("usr"); pin <- par("pin")
 for (i in seq_len(nrow(tm))) {
+  if (is.null(imgs[[i]])) {                              # no logo: fall back to a label
+    text(tm$exp_goals[i], tm$r_goals[i], abbreviate(tm$team[i], 4), cex = 0.6)
+    next
+  }
   ar <- dim(imgs[[i]])[1] / dim(imgs[[i]])[2]           # height / width
   w  <- sz * diff(usr[1:2]) / pin[1]
   h  <- sz * ar * diff(usr[3:4]) / pin[2]
@@ -246,7 +310,8 @@ boot_ratings <- function(m, B = 1000, lambda = 3) {
     Xb[cbind(seq_len(nrow(mb)), match(mb$home, teams))] <-  1
     Xb[cbind(seq_len(nrow(mb)), match(mb$away, teams))] <- -1
     D  <- cbind(hfa = 1, Xb)
-    rg <- fit_r(D, mb$home_goals - mb$away_goals)
+    # rg <- fit_r(D, mb$home_goals - mb$away_goals)
+    rg <- fit_r(D, y_target(mb))
     rx <- fit_r(D, mb$home_xg    - mb$away_xg)
     rt <- fit_r(D, (mb$home_xt   - mb$away_xt) / 100)
     rr <- fit_r(D, mb$home_rtg - mb$away_rtg)
@@ -269,7 +334,8 @@ loo_predict <- function(m, lambda = 3) {
       r <- as.vector(b)[-1]; names(r) <- teams
       r - mean(r)
     }
-    rg <- f((m$home_goals - m$away_goals)[-i])
+    # rg <- f((m$home_goals - m$away_goals)[-i])
+    rg <- f(y_target(m)[-i])    
     rx <- f((m$home_xg    - m$away_xg)[-i])
     rt <- f(((m$home_xt   - m$away_xt) / 100)[-i])
     rr <- f((m$home_rtg   - m$away_rtg)[-i])
@@ -285,16 +351,15 @@ m$predict_loo <- loo_predict(m)
 
 ##### forecast prep #####
 ## make names consistent
-xw <- data.frame(
-  abbrev = c("Hull","Ipswich","Nottm Forest","Brighton","Man City","Newcastle",
-             "Bournemouth","Coventry","Tottenham","Leeds","Man United"),
-  team   = c("Hull City","Ipswich Town","Nottingham Forest","Brighton & Hove Albion",
-             "Manchester City","Newcastle United","AFC Bournemouth","Coventry City",
-             "Tottenham Hotspur","Leeds United","Manchester United"))
+# fixture-page names -> match-page names, matched on shared match ids
+xw <- unique(rbind(
+  data.frame(abbrev = fx$home, team = df$home[match(fx$match_id, df$match_id)]),
+  data.frame(abbrev = fx$away, team = df$away[match(fx$match_id, df$match_id)])))
+xw <- xw[!is.na(xw$team), ]
 fixnm <- function(v) ifelse(v %in% xw$abbrev, xw$team[match(v, xw$abbrev)], v)
 
 ## simplify
-y <- fx[, c("match_id","date","home","away")]
+y <- fx[, c("match_id","date","home","away", "kickoff")]
 y$home <- fixnm(y$home)
 y$away <- fixnm(y$away)
 
@@ -303,7 +368,7 @@ y$goals   <- df$goals[match(y$match_id, df$match_id)]
 y$predict <- x$expected_rating[match(y$home, x$team)] - x$expected_rating[match(y$away, x$team)]
 y$outcome <- factor(ifelse(y$goals > 0, "win", ifelse(y$goals == 0, "draw", "lose")),
                     levels = c("lose","draw","win"), ordered = TRUE)
-future <- y[is.na(y$goals), ]
+future <- y[is.na(y$goals) & y$home %in% x$team & y$away %in% x$team, ]   # drops TBD / playoff slots
 
 # estimate probability of winning | on rating
 train <- y[!is.na(y$goals), ]
@@ -344,8 +409,8 @@ out <- data.frame(
   exp_pts  = colMeans(pts),
   exp_rank = colMeans(res),
   p_title  = colMeans(res == 1),
-  p_top4   = colMeans(res <= 4),
-  p_releg  = colMeans(res >= 18)
+  p_top    = colMeans(res <= lg$n_top),
+  p_releg  = colMeans(res > nrow(x) - lg$n_releg)
 )
 rownames(out) <- NULL
 out <- out[order(out$exp_rank),]
@@ -362,9 +427,27 @@ for(i in 5:7){
 nxt <- future
 nxt <- cbind(nxt[,2:4], round(100 * predict(mod, newdata = nxt, type = "probs")))
 nxt <- nxt[,c(1:3, 6, 5, 4)]
-nxt <- nxt[nxt$date == min(nxt$date),]
+nxt$kickoff_utc <- future$kickoff
+n1 <- aggregate(date ~ home, nxt, min)
+n2 <- aggregate(date ~ away, nxt, min)
+names(n1)[1] <- names(n2)[1] <- "team"
+n <- rbind(n1, n2)
+n <- aggregate(date ~ team, n, min)
+nxt <- nxt[nxt$date <= max(n$date),]
 # nxt
 
 ##### save #####
-write.csv(out, "data/epl_table.csv", row.names = F)
-write.csv(nxt, "data/next_match_predictions.csv", row.names = F)
+names(out)[names(out) == "p_top"] <- paste0("p_top", lg$n_top)   # epl stays p_top4
+if (lg$n_releg == 0) out$p_releg <- NULL
+write.csv(out, f_table, row.names = F)
+write.csv(nxt, f_next, row.names = F)
+invisible(list(table = out, next_matches = nxt))
+}
+
+##### Run each league #####
+for (i in seq_len(nrow(leagues))) {
+  lg <- leagues[i, ]
+  message("---- ", lg$league, " ----")
+  tryCatch(run_league(lg),
+           error = function(e) message(lg$league, " failed: ", conditionMessage(e)))
+}
